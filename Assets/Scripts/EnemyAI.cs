@@ -80,5 +80,11 @@ public class EnemyAI : MonoBehaviour, AI
         }
     }
 
-   
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Player"))
+        {
+            Destroy(collision.gameObject);  // Destroy the player
+        }
+    }
 }
