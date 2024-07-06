@@ -1,51 +1,51 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class ObstacleManager : MonoBehaviour
 {
-    public ObstacleData obstacleData;  // Reference to ObstacleData scriptable object
-    public GameObject obstaclePrefab;  // Prefab to instantiate for obstacles
-    public static ObstacleManager instance;  // Static instance of ObstacleManager
+    public ObstacleData obstacleData;       // Reference to the ScriptableObject holding obstacle data
+    public GameObject obstaclePrefab;       // Prefab used to instantiate obstacles
+    public static ObstacleManager instance; // Static reference to the ObstacleManager instance
+    public int gridSize = 10;              // Define your grid size here
 
     void Awake()
     {
-        instance = this;  // Set the static instance to this object
+        instance = this;  // Set the static instance reference when the object awakens
     }
 
     void Start()
     {
-        GenerateObstacles();  // Generate obstacles based on obstacleData
+        GenerateObstacles();  // Generate obstacles at the start of the game
     }
 
     void GenerateObstacles()
     {
-        for (int i = 0; i < obstacleData.blockedTiles.Length; i++)
+        // Loop through each cell in the grid
+        for (int y = 0; y < gridSize; y++)
         {
-            if (obstacleData.blockedTiles[i])
+            for (int x = 0; x < gridSize; x++)
             {
-                // Calculate x and z positions from index
-                int x = i % 10;
-                int z = i / 10;
-
-                // Instantiate obstaclePrefab at calculated position
-                Instantiate(obstaclePrefab, new Vector3(x, 0.5f, z), Quaternion.identity);
+                int i = x + y * gridSize;  // Calculate the index in the 1D array
+                if (obstacleData.blockedTiles[i])  // Check if the current tile is blocked
+                {
+                    // Instantiate an obstacle prefab at the corresponding grid position
+                    Instantiate(obstaclePrefab, new Vector3(x, 0.5f, y), Quaternion.identity);
+                }
             }
         }
     }
 
-    // Method to check if a specific tile position is blocked
+    // Method to check if a tile at the given position is blocked
     public static bool IsTileBlocked(Vector2Int position)
     {
-        if (instance == null) return false;  // Return false if instance is null (no ObstacleManager)
+        if (instance == null) return false;  // Return false if the instance is null (safety check)
 
-        // Calculate index in blockedTiles array from 2D position
-        int index = position.x + position.y * 10;
+        // Calculate the index in the 1D array based on the grid position
+        int index = position.x + position.y * instance.gridSize;
 
-        // Check if index is within valid range
+        // Check if the index is within bounds
         if (index < 0 || index >= instance.obstacleData.blockedTiles.Length) return false;
 
-        // Return blocked status of the tile at the calculated index
+        // Return the value from the blockedTiles array indicating if the tile is blocked
         return instance.obstacleData.blockedTiles[index];
     }
 }

@@ -5,6 +5,7 @@ using UnityEngine;
 public class EnemyAI : MonoBehaviour, AI
 {
     public float moveSpeed = 4f;  // Speed at which the enemy moves
+    private Transform target;  // Reference to the player's transform
     private Vector3 targetPosition;  // Target position the enemy is moving towards
     private bool isMoving = false;  // Flag indicating if the enemy is currently moving
     private List<Vector2Int> path;  // List of grid positions for the enemy's path
@@ -12,6 +13,7 @@ public class EnemyAI : MonoBehaviour, AI
 
     private void Start()
     {
+        target = GameObject.FindGameObjectWithTag("Player").transform;  // Find and assign the player's transform
         targetPosition = transform.position;  // Initialize target position to current position
     }
 
@@ -34,6 +36,15 @@ public class EnemyAI : MonoBehaviour, AI
                 {
                     isMoving = false;  // Stop moving if reached the end of the path
                 }
+            }
+        }
+        else
+        {
+            // If not moving, check if the player is within range and start pursuing
+            if (Vector3.Distance(transform.position, target.position) <= 10f)  // Adjust the detection range as needed
+            {
+                Vector2Int playerGridPosition = new Vector2Int(Mathf.RoundToInt(target.position.x), Mathf.RoundToInt(target.position.z));
+                MoveTowardsPlayer(playerGridPosition);  // Start moving towards the player
             }
         }
     }
@@ -69,4 +80,5 @@ public class EnemyAI : MonoBehaviour, AI
         }
     }
 
+   
 }

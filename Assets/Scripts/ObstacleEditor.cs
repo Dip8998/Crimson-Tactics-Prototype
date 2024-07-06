@@ -1,35 +1,29 @@
-using System.Collections;
-using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
-using UnityEditor;
 
-// Ensure this script is only compiled when in the Unity Editor environment
-#if UNITY_EDITOR
-
-// Add this using directive for CustomEditor attribute
-using UnityEditor;
-
-// Custom editor for ObstacleData, allowing editing of blockedTiles array in the Inspector
-[CustomEditor(typeof(ObstacleData))]
-public class ObstacleEditor : Editor
+[CustomEditor(typeof(ObstacleData))]  // Custom editor for the ObstacleData scriptable object
+public class Obstacle2DEditor : Editor
 {
-    // Override the default Inspector GUI
     public override void OnInspectorGUI()
     {
-        // Cast the target object to ObstacleData
-        ObstacleData data = (ObstacleData)target;
+        ObstacleData data = (ObstacleData)target;  // Cast the target object to ObstacleData type
 
-        // Display toggle buttons for each element in blockedTiles array
-        for (int i = 0; i < 100; i++)
+        int gridSize = Mathf.RoundToInt(Mathf.Sqrt(data.blockedTiles.Length)); // Calculate grid size dynamically based on array length
+
+        for (int y = 0; y < gridSize; y++)  // Iterate over rows (y-axis) of the grid
         {
-            data.blockedTiles[i] = GUILayout.Toggle(data.blockedTiles[i], $"Tile {i % 10},{i / 10}");
-            if ((i + 1) % 10 == 0)
-                GUILayout.Space(10); // Add space after every 10 tiles for better visual separation
+            EditorGUILayout.BeginHorizontal();  // Begin a horizontal group in the editor window
+            for (int x = 0; x < gridSize; x++)  // Iterate over columns (x-axis) of the grid
+            {
+                int i = x + y * gridSize;  // Calculate index in the 1D array corresponding to the 2D grid position
+                data.blockedTiles[i] = GUILayout.Toggle(data.blockedTiles[i], $"({x}, {y})");  // Create a toggle button for each grid cell
+            }
+            EditorGUILayout.EndHorizontal();  // End the horizontal group
         }
 
-        // Mark the target object as dirty to ensure changes are saved
-        EditorUtility.SetDirty(target);
+        if (GUI.changed)
+        {
+            EditorUtility.SetDirty(target); // Mark the object as dirty to save changes when toggles are modified
+        }
     }
 }
-
-#endif // End of UNITY_EDITOR
